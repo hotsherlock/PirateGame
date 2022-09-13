@@ -1,0 +1,8 @@
+{
+	"contains_albedo": false,
+	"resolution": 1024,
+	"src": {
+		"a": "res://art/textures/sand/Ground054_1K_Roughness.jpg",
+		"rgb": "res://art/textures/sand/Ground054_1K_NormalDX.jpg"
+	}
+}

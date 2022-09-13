@@ -1,0 +1,144 @@
+[gd_scene load_steps=24 format=2]
+
+[ext_resource path="res://addons/zylann.hterrain/hterrain.gd" type="Script" id=1]
+[ext_resource path="res://addons/zylann.hterrain/hterrain_texture_set.gd" type="Script" id=2]
+[ext_resource path="res://terrain_data/data.hterrain" type="Resource" id=3]
+[ext_resource path="res://art/textures/Terrain_slot1_albedo_bump.packed_tex" type="Texture" id=4]
+[ext_resource path="res://art/textures/Terrain_slot1_normal_roughness.packed_tex" type="Texture" id=5]
+[ext_resource path="res://art/textures/Terrain_slot0_albedo_bump.packed_tex" type="Texture" id=6]
+[ext_resource path="res://art/textures/Terrain_slot2_albedo_bump.packed_tex" type="Texture" id=7]
+[ext_resource path="res://art/textures/Terrain_slot0_normal_roughness.packed_tex" type="Texture" id=8]
+[ext_resource path="res://art/textures/Terrain_slot3_albedo_bump.packed_tex" type="Texture" id=9]
+[ext_resource path="res://art/textures/Terrain_slot3_normal_roughness.packed_tex" type="Texture" id=10]
+[ext_resource path="res://art/textures/Terrain_slot2_normal_roughness.packed_tex" type="Texture" id=11]
+[ext_resource path="res://scripts/Terrain.gd" type="Script" id=12]
+
+[sub_resource type="ProceduralSky" id=1]
+
+[sub_resource type="Environment" id=2]
+background_mode = 2
+background_sky = SubResource( 1 )
+tonemap_mode = 3
+
+[sub_resource type="Resource" id=3]
+script = ExtResource( 2 )
+mode = 0
+textures = [ [ ExtResource( 6 ), ExtResource( 4 ), ExtResource( 7 ), ExtResource( 9 ) ], [ ExtResource( 8 ), ExtResource( 5 ), ExtResource( 11 ), ExtResource( 10 ) ] ]
+
+[sub_resource type="BoxShape" id=4]
+extents = Vector3( 256, 15, 256 )
+
+[sub_resource type="VisualShaderNodeColorConstant" id=5]
+output_port_for_preview = 0
+constant = Color( 0.117647, 0.282353, 0.721569, 0.733333 )
+
+[sub_resource type="VisualShaderNodeScalarConstant" id=9]
+
+[sub_resource type="VisualShader" id=6]
+code = "shader_type spatial;
+render_mode specular_schlick_ggx, async_visible;
+
+
+
+
+void vertex() {
+// Output:0
+
+}
+
+void fragment() {
+// Color:2
+	vec3 n_out2p0 = vec3(0.117647, 0.282353, 0.721569);
+	float n_out2p1 = 0.733333;
+
+// Scalar:3
+	float n_out3p0 = 0.000000;
+
+// Output:0
+	ALBEDO = n_out2p0;
+	ALPHA = n_out2p1;
+	ROUGHNESS = n_out3p0;
+
+}
+
+void light() {
+// Output:0
+
+}
+"
+graph_offset = Vector2( -247.897, 211.277 )
+nodes/fragment/0/position = Vector2( 480, 260 )
+nodes/fragment/2/node = SubResource( 5 )
+nodes/fragment/2/position = Vector2( 207.106, 227.052 )
+nodes/fragment/3/node = SubResource( 9 )
+nodes/fragment/3/position = Vector2( 200, 440 )
+nodes/fragment/connections = PoolIntArray( 2, 1, 0, 1, 2, 0, 0, 0, 3, 0, 0, 3 )
+
+[sub_resource type="ShaderMaterial" id=7]
+shader = SubResource( 6 )
+
+[sub_resource type="CubeMesh" id=8]
+material = SubResource( 7 )
+size = Vector3( 512, 30, 512 )
+
+[sub_resource type="BoxShape" id=10]
+extents = Vector3( 256, 14.5, 256 )
+
+[sub_resource type="BoxShape" id=11]
+extents = Vector3( 256, 14, 256 )
+
+[node name="Terrain" type="Spatial"]
+script = ExtResource( 12 )
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource( 2 )
+
+[node name="HTerrain" type="Spatial" parent="."]
+script = ExtResource( 1 )
+lod_scale = 2.0
+_terrain_data = ExtResource( 3 )
+chunk_size = 32
+collision_enabled = true
+collision_layer = 1
+collision_mask = 1
+shader_type = "Classic4"
+custom_shader = null
+custom_globalmap_shader = null
+texture_set = SubResource( 3 )
+render_layers = 3
+shader_params/u_ground_uv_scale_per_texture = Plane( 20, 20, 20, 20 )
+shader_params/u_depth_blending = true
+shader_params/u_triplanar = false
+shader_params/u_tile_reduction = Plane( 1, 1, 1, 1 )
+shader_params/u_globalmap_blend_start = null
+shader_params/u_globalmap_blend_distance = null
+shader_params/u_colormap_opacity_per_texture = Plane( 1, 1, 1, 1 )
+
+[node name="WaterSurface" type="Area" parent="."]
+
+[node name="CollisionShape" type="CollisionShape" parent="WaterSurface"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 256, -15, 256 )
+shape = SubResource( 4 )
+
+[node name="MeshInstance" type="MeshInstance" parent="WaterSurface/CollisionShape"]
+layers = 3
+mesh = SubResource( 8 )
+
+[node name="Water" type="Area" parent="."]
+
+[node name="CollisionShape" type="CollisionShape" parent="Water"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 256, -15.5, 256 )
+shape = SubResource( 10 )
+
+[node name="UnderWater" type="Area" parent="."]
+
+[node name="CollisionShape" type="CollisionShape" parent="UnderWater"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 256, -16, 256 )
+shape = SubResource( 11 )
+
+[connection signal="body_entered" from="WaterSurface" to="." method="_on_WaterSurface_body_entered"]
+[connection signal="body_exited" from="WaterSurface" to="." method="_on_WaterSurface_body_exited"]
+[connection signal="body_entered" from="Water" to="." method="_on_Water_body_entered"]
+[connection signal="body_exited" from="Water" to="." method="_on_Water_body_exited"]
+[connection signal="body_entered" from="UnderWater" to="." method="_on_UnderWater_body_entered"]
+[connection signal="body_exited" from="UnderWater" to="." method="_on_UnderWater_body_exited"]
