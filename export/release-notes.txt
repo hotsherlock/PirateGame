@@ -1,0 +1,12 @@
+Version 0.0.1
+
+1st and 3rd person camera toggle with F3
+smooth 4 directional movement and jumping
+
+Version 0.0.2
+
+swimming
+terrain and water
+crouching and prone
+daylight cycle - days last about 30 minutes
+
